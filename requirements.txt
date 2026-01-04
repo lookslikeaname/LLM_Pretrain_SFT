@@ -1,0 +1,9 @@
+torch
+transformers
+datasets
+tokenizers
+trl
+accelerate
+pandas
+numpy
+jupyter
