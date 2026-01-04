@@ -41,8 +41,9 @@ Since this is an educational project using a lightweight model (`Qwen2.5-0.5B`) 
 
 | Evaluation Prompt | Base Model (Pre-trained, Epoch 3) | SFT Model Behavior (Epoch 3) |
 | :--- | :--- | :--- |
-| **User:** "Что бы ни случилось, я всегда буду" | *Repeats the question or generates random noise.* | *Attempts to structure an answer:* "Нужно читать книги и говорить..." (Basic instruction following) |
-| **User:** "Чтобы жить честно" | *Hallucinations / irrelevant text.* | *Generates rhymed lines (even if semantically nonsensical).* |
+| **User:** "Что бы ни случилось, я всегда буду" | *Generates syntactically correct but irrelevant text:* "Что бы ни случилось, я всегда будупегали, что мне все-таки они, я все-таки не могу.
+" | *Attempts to structure an answer:* "Нужно читать книги и говорить..." (Basic instruction following) |
+| **User:** "Чтобы жить честно" | *Hallucinations / irrelevant text:* "Чтобы жить честновпим-с." | *Generates rhymed lines (even if semantically nonsensical).* |
 
 ### 3. Limitations & Future Work
 To achieve production-level quality, the following improvements would be required:
