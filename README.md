@@ -12,7 +12,6 @@ The project combines two major tasks in a single pipeline:
 ## 📂 Project Structure
 
 * `LLM_Pretrain_SFT.ipynb`: The main notebook containing the entire code pipeline (Data Collection -> Tokenization -> Pre-training -> SFT).
-* `data/`: Contains the cleaned corpus of Russian novels used for pre-training.
 
 ## 🚀 Key Features Implemented
 
