@@ -1,52 +1,55 @@
-# End-to-End LLM Training Pipeline: From Pre-training to SFT
-Full LLM Development Cycle for the Russian language
+# 🧠 LLM Training Pipeline: From Pre-training to SFT
 
-![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
-![PyTorch](https://img.shields.io/badge/PyTorch-2.1-orange)
+![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python)
+![Hugging Face](https://img.shields.io/badge/Hugging%20Face-Transformers-yellow?logo=huggingface)
+![PyTorch](https://img.shields.io/badge/PyTorch-Enabled-red?logo=pytorch)
 ![Status](https://img.shields.io/badge/Status-Educational_Project-green)
 
-The project combines two major tasks in a single pipeline:
-1.  **Domain Adaptation:** Pre-training a language model on a corpus of Russian Classical Literature.
-2.  **Instruction Tuning (SFT):** Fine-tuning the model to follow instructions using the Alpaca dataset.
+This repository contains an educational project exploring the complete lifecycle of Large Language Models (LLMs). The goal was to master the implementation of two critical stages in LLM development: **Pre-training from scratch** and **Supervised Fine-Tuning (SFT)** using modern NLP libraries.
 
-## 📂 Project Structure
-
-* `LLM_Pretrain_SFT.ipynb`: The main notebook containing the entire code pipeline (Data Collection -> Tokenization -> Pre-training -> SFT).
-
-## 🚀 Key Features Implemented
-
-### 1. Data Engineering
-* Recursive collection of raw text files.
-* Cleaning pipeline: Deduplication, Regex-based normalization, and non-Cyrillic filtering.
-* **Custom BPE Tokenizer:** Trained a 25k-vocabulary tokenizer optimized for Russian morphology.
-
-### 2. Model Training
-* **Stage 1 (Pre-training):** Training a Transformer model from scratch (or adapting a base model) on the literature corpus using Causal Language Modeling objective.
-* **Stage 2 (SFT):** Fine-tuning `Qwen2.5-0.5B` using **TRL (Transformer Reinforcement Learning)** and the Alpaca dataset.
-* **Optimization:** Used **BF16 precision** for memory efficiency.
-
-### 3. Monitoring
-* Implemented a custom `GenerationCallback` to visually monitor the model's text generation quality at the end of each epoch, instead of relying solely on Loss metrics.
+> **⚠️ Note on Project Structure**
+> This project is designed as a modular playground to demonstrate implementation skills across different model architectures. For educational purposes, the two stages are executed independently:
+> * **Part 1 (Pre-training):** Trains a custom **Llama** architecture from scratch on a domain-specific corpus.
+> * **Part 2 (SFT):** Fine-tunes a pre-trained **Qwen2.5** model on instructions.
+>
+> While a production pipeline would typically pipeline these steps on a single model, this project treats them as separate experiments to showcase versatility with different tools (`Trainer` vs `SFTTrainer`) and initialization methods.
 
 
-## 📊 Results & Analysis
+## 🛠️ Project Stages
 
-Since this is an educational project using a lightweight model (`Qwen2.5-0.5B`) and limited compute budget, the goal was to validate the training pipeline rather than achieve State-of-the-Art performance.
+### 1. Pre-training from Scratch (Domain Adaptation)
+In this stage, I built a complete pipeline to train a language model on a raw text corpus of **Russian novels**. The objective was to understand how models learn syntax and grammar from a "blank slate."
 
-### 1. Training Dynamics
-* **Pre-training:** The model demonstrated steady loss convergence, successfully learning the **syntactic and morphological structure** of the Russian language (correct Cyrillic usage, punctuation), although semantic coherence remains limited due to the dataset size.
-* **SFT (Instruction Tuning):** A clear behavioral shift was observed by Epoch 3. The model transitioned from "text continuation" (LM objective) to "dialogue format" (Instruction following), although it is still prone to hallucinations — a known limitation of <1B parameter models.
+* **Data Pipeline:** Implemented data cleaning, deduplication, and non-Cyrillic filtering to prepare the `RussianNovels` dataset.
+* **Tokenizer:** Trained a custom **BPE (Byte-Pair Encoding)** tokenizer specifically optimized for the dataset vocabulary.
+* **Architecture:** Initialized a `LlamaForCausalLM` from scratch (`LlamaConfig`) with ~177M parameters.
+* **Training:** Used the standard Hugging Face `Trainer` for Causal Language Modeling (CLM).
+* **Monitoring:** Implemented a custom `GenerationCallback` to visually evaluate text generation progress at the end of each epoch.
 
-### 2. Qualitative Comparison
+### 2. Supervised Fine-Tuning (Instruction Tuning)
+In this stage, I focused on the alignment phase, turning a base model into a helpful assistant that can follow instructions.
 
-| Evaluation Prompt | Base Model (Pre-trained, Epoch 3) | SFT Model Behavior (Epoch 3) |
-| :--- | :--- | :--- |
-| **User:** "Что бы ни случилось, я всегда буду" | *Generates syntactically correct but irrelevant text:* "Что бы ни случилось, я всегда будупегали, что мне все-таки они, я все-таки не могу.
-" | *Attempts to structure an answer:* "Нужно читать книги и говорить..." (Basic instruction following) |
-| **User:** "Чтобы жить честно" | *Hallucinations / irrelevant text:* "Чтобы жить честновпим-с." | *Generates rhymed lines (even if semantically nonsensical).* |
+* **Base Model:** Utilized `Qwen/Qwen2.5-0.5B` as a strong baseline.
+* **Dataset:** Processed the `d0rj/alpaca-cleaned-ru` dataset, converting raw Alpaca-style inputs into a conversational dialogue format.
+* **Library:** Leveraged the **TRL (Transformer Reinforcement Learning)** library.
+* **Optimization:** Used `SFTTrainer` with `bfloat16` precision and gradient accumulation to optimize GPU memory usage.
 
-### 3. Limitations & Future Work
-To achieve production-level quality, the following improvements would be required:
-* **Scale:** Scaling up to a 7B+ parameter model (e.g., Mistral or Llama 3).
-* **Data:** Increasing the pre-training corpus from a few novels to a generic web corpus (e.g., CommonCrawl).
-* **Compute:** Extending training from 3 epochs to multiple epochs with a larger batch size.
+## 💻 Tech Stack
+
+* **Libraries:** `transformers`, `trl`, `datasets`, `tokenizers`, `torch`
+* **Models:** Llama (Custom Config), Qwen2.5
+* **Hardware Optimization:** CUDA support, Mixed Precision Training (`fp16`/`bf16`)
+
+## 🚀 Key Learnings & Features implemented
+
+- [x] **Custom Data Chunking:** Grouping tokenized text into context windows (e.g., 512 or 1024 tokens) for efficient CLM training.
+- [x] **Tokenizer Training:** Understanding special tokens (`<bos>`, `<eos>`, `<pad>`) and vocabulary sizing.
+- [x] **Custom Callbacks:** Writing Python classes to hook into the training loop for real-time inference logging.
+- [x] **Instruction Formatting:** Mapping datasets to chat templates for SFT.
+
+## 📊 Results & Limitations
+
+* **Pipeline Validation:** Both Pre-training and SFT pipelines executed successfully without errors.
+* **Resource Constraints:** Due to hardware limitations (Google Colab free tier), the SFT phase was limited to **1 epoch** instead of the planned 3.
+* **Observations:** Even with limited training steps, the Qwen2.5 model showed immediate improvement in following Russian instructions, confirming that the data formatting and training loop were implemented correctly.
+
